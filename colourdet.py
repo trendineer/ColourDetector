@@ -1,5 +1,6 @@
 #programming_fever
 import cv2
+import os
 import numpy as np
 import pandas as pd
 
@@ -32,7 +33,7 @@ def draw_function(event, x,y,flags,param):
 
 if __name__ == "__main__":
 
-  img_path = "C://Users//omare//Google Drive//Dev//Trendineer//Colour Detection//OpenCV-Projects//color detection//palette.jpg"
+  img_path = os.path.abspath(os.getcwd()) + "\\palette.jpg"
   img = cv2.imread(img_path)
   img = cv2.resize(img,(700,500))
 
@@ -71,4 +72,4 @@ if __name__ == "__main__":
     if cv2.waitKey(20) & 0xFF ==27:
       break
 
-    cv2.destroyAllWindows()
+  cv2.destroyAllWindows()
