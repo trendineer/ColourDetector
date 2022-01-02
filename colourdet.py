@@ -1,9 +1,7 @@
-#programming_fever
 import cv2
 import os
 import numpy as np
 import pandas as pd
-
 
 #function to calculate minimum distance from all colors and get the most matching color
 def getColorName(R,G,B):
@@ -30,19 +28,36 @@ def draw_function(event, x,y,flags,param):
   #     clicked = True
   #     print('yo')
 
+def average_colour(img):
+  B, G, R = cv2.split(img)
+    
+  avgR = int(np.array(R).mean())
+  avgG = int(np.array(G).mean())
+  avgB = int(np.array(B).mean())
+
+  return getColorName(avgR, avgG, avgB)
+
+def edge_detector(img):
+  # use edge detector to identify the different then use contouriong to get unique blobs
+  blobs = img
+  return blobs
+
 
 if __name__ == "__main__":
 
-  img_path = os.path.abspath(os.getcwd()) + "\\palette.jpg"
+  img_path = os.path.abspath(os.getcwd()) + "\\coloursimage.jpg"
+  img_path = "coloursimage.jpg"
   img = cv2.imread(img_path)
+
   img = cv2.resize(img,(700,500))
 
   clicked = False
   r = g = b = xpos = ypos = 0
-
+  
   #Reading csv file with pandas and giving names to each column
-  index=["color","color_name","hex","R","G","B"]
+  index=["color","color_name","R","G","B"]
   csv = pd.read_csv('colors2.csv', names=index, header=None)
+
 
   window_name = 'window'
   cv2.namedWindow(window_name)
@@ -57,13 +72,13 @@ if __name__ == "__main__":
       #cv2.rectangle(image, startpoint, endpoint, color, thickness)-1 fills entire rectangle 
       cv2.rectangle(img,(20,20), (750,60), (b,g,r), -1)
 
-      #Creating text string to display( Color name and RGB values )
-      text = getColorName(r,g,b) + ' R='+ str(r) +  ' G='+ str(g) +  ' B='+ str(b)
+      #Creating text string to display( Color name and RGB values ) 
+      text = getColorName(r,g,b) + ' R=' + str(r) + ' G='+ str(g) + ' B='+ str(b)
 
       #cv2.putText(img,text,start,font(0-7),fontScale,color,thickness,lineType )
       cv2.putText(img, text,(50,50),2,0.8,(255,255,255),2,cv2.LINE_AA)
 
-      #For very light colours we will display text in black colour
+      # #For very light colours we will display text in black colour
       if(r+g+b>=600):
         cv2.putText(img, text,(50,50),2,0.8,(0,0,0),2,cv2.LINE_AA)
 
@@ -73,3 +88,7 @@ if __name__ == "__main__":
       break
 
   cv2.destroyAllWindows()
+
+  # print(average_colour(img))
+  # cv2.imshow('image',img)
+  # cv2.waitKey(0)
