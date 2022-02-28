@@ -8,10 +8,19 @@ from skimage.draw import polygon
 from shapely import geometry
 import json
 
-# class contours:
-#   def __init__(self):
-#     self.contour_list = contour_list
-#     sel
+class Contour:
+  def __init__(self):
+    self.list = []
+
+class ContourData:
+  def __init__(self):
+    self.pixels_positions = None, #list of pixel potions for a given contour
+    self.pixel_position_colours = None, #list of pixel colours for the contour pixels
+    self.size_of_contours = None, # size of the contour
+    self.average_colour_rgb = None, # avg rgb value of the contour
+    self.average_colour = None, # avg colour on the contour
+    self.average_position =  None # avg position of the contour
+
 
 #function to calculate minimum distance from all colors and get the most matching color
 def getColorName(R,G,B):
@@ -64,61 +73,38 @@ def auto_canny(image, sigma=0.33):
 	return edged
 
 def getContourArray(image, edge_image):
+  #grabs contours and fills them out to get all pixels in the image araray.
+
   thresh = cv2.threshold(edge_image, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)[1]
   contour = cv2.findContours(thresh, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
   cnts = contour[0]
   poly_coords = np.array([[]])
 
   for i in range(len(cnts)):
+    #get poly chords 
     poly_coord = np.array([[]]) # should look like np.array(((x1,y1),(x2,y2),(x3,y3)) 
     cnt = cnts[i]
     # np.append(poly_coord, [[]])
 
-    for current_cnt in cnt:
-      cnt_to_add = current_cnt[0]
-      if poly_coord.size == 0 :
-        poly_coord = np.append(poly_coord,(cnt_to_add))
-      else:
-        poly_coord = np.vstack((poly_coord,cnt_to_add))
+    # for current_cnt in cnt:
+    #   cnt_to_add = current_cnt[0]
+    #   if poly_coord.size == 0 :
+    #     poly_coord = np.append(poly_coord,(cnt_to_add))
+    #   else:
+    #     poly_coord = np.vstack((poly_coord,cnt_to_add))
   
     # if poly_coords.size == 0 :
     #     poly_coords = np.append(poly_coords,(poly_coord))
     # else:
 
+  #USE POLY FILL TOOL IDK IMPORTED SOMEHTHING AT SOME POINT LOOK INTO IT
 
     # NEED TO RETURN ARRAY OF CONTOUR POINTS 
     # v below stuff can be in another function that takes all the array data and reformats it
 
-|# would like ot create an array in form below
-  # array = '''{contours :
-  #             "id": id,
-  #             "avergae_colour": colour
-  #             "central_coords": [coords_x, coords_y],
-  #             "contour_coords": ["apple", "banana", "orange"]
-  #           }'''
+    # Still WIP
+  return poly_cords, poly_coords_rgb
 
-  # data  = json.loads(array)
-  # fruits_list = data['fruits']
-  # print(data)
-
-  # return (poly_coords)
-
-  # return 
-  # [
-  #   central_coords: 
-  #     [
-  #       x : coord_x,
-  #       y : coord_y
-  #     ]
-  #   contour_list:
-  #     [
-  #       1: [contour_list_1],
-  #       2: [contour_list_2],
-  #       3: [contour_list_3],
-  #       4: [contour_list_4]... 
-  #     ]
-  # ]
-    
 
 # https://scikit-image.org/docs/dev/auto_examples/edges/plot_shapes.html#sphx-glr-auto-examples-edges-plot-shapes-py
 # want to use skimage.draw.polygon(r, c[, shape])
@@ -176,22 +162,122 @@ def fill(image):
   return 255-image
 
 
+def main():
+  # this should take an args to image file
+  img = 'img.png'
+
+  # 1- find contours WIP
+  edge_img = edge_detector(img)
+  contours, contour_rgb = getContourArray(edge_img)
+  # 
+
+  #create Contour object Contour = Contour()
+  Contour = Contour()
+
+  for contour in contours:
+    # create current contour object 
+    current_contour = ContourData()
+
+    # get attibute values
+    current_contour.pixels_positions = contour.positions
+    current_contour.pixel_position_colours = contour.positions_rgb
+    current_contour.size_of_contours = contour.positions.len() ##something like that
+    current_contour.average_colour_rgb = current_contour.pixel_position_colours
+    current_contour.average_colour = getColorName(current_contour.average_colour_rgb)
+    # current_contour.average_position =  evaluate the center of mass of the objects  WIP
+
+    # append ContourData object into Contour object
+    Contour.list.append(ContourData())
+
+  return Contour
+  # 4- dump Contour Object as json to be processed further elsewhere.
+
+
 if __name__ == "__main__":
 
-  # load in image data
-  img_path = os.path.abspath(os.getcwd()) + "\\polka-dot.jpg"
-  img_path = "polka-dot.jpg"
-  img = cv2.imread(img_path)
-  img2 = cv2.imread(img_path)
+  # # load in image data
+  # img_path = os.path.abspath(os.getcwd()) + "\\polka-dot.jpg"
+  # img_path = "polka-dot.jpg"
+  # img = cv2.imread(img_path)
+  # img2 = cv2.imread(img_path)
   
-  #Reading csv file giving names to each column
-  index=["color","color_name","R","G","B"]
-  csv = pd.read_csv('colors2.csv', names=index, header=None)
+  # #Reading csv file giving names to each column
+  # index=["color","color_name","R","G","B"]
+  # csv = pd.read_csv('colors2.csv', names=index, header=None)
 
-  # Image processing 
-  # applying an edge detector
-  edge_img = auto_canny(img)  
-  curr_img = getContourArray(img, edge_img)
-  print(curr_img)
+  # # Image processing 
+  # # applying an edge detector
+  # edge_img = auto_canny(img)  
+  # curr_img = getContourArray(img, edge_img)
+  # print(curr_img)
+
+  # contour = Contour()
+  # print(contour.list)
+  # contour.list.append(ContourData())
+  # contour.list.append(ContourData())
+  # print(contour.list)
+
+  # item = ContourData() 
+  # contour.pixels_positions = [[1,1],[1,2],[2,1],[2,2]]
+  # contour.pixel_position_colours = [[123,121,125],[211,163,2],[113,531,22],[153,444,232]]
+  # print(vars(contour))
 
 
+
+# object should look like
+
+
+# # unique list should look like 
+# contour_i => [
+#     pixels_positions => [position_array],
+#     pixel_position_colours => [position_colours],
+#     size_of_contours => size,
+#     average_colours => [avg_r, avg_g, avg_b],
+#     avgerage_positionn => avg_pos ],
+
+# # total list should look like
+# contour_list = [
+#   contour_1 => [
+#     pixels_positions => [position_array],
+#     pixel_position_colours => [position_colours],
+#     size_of_contours => size,
+#     average_colours => [avg_r, avg_g, avg_b],
+#     avgerage_positionn => avg_pos ],
+#   contour_2 => [
+#     pixels_positions => [position_array],
+#     pixel_position_colours => [position_colours],
+#     size_of_contours => size,
+#     average_colours => [avg_r, avg_g, avg_b],
+#     avgerage_positionn => avg_pos ],
+# ]
+
+# what I need to do is 
+# - 1 create python object constructor  for the contour data
+# class contourData:
+#   def _init_(self):
+#     self.pixels_positions = np.empty(), #list of pixel potions for a given contour
+#     self.pixel_position_colours = np.empty(), #list of pixel colours for the contour pixels
+#     self.size_of_contours = None, # size of the contour
+#     self.average_colour_rgb = np.empty(), # avg rgb value of the contour
+#     self.average_colour = None, # avg colour on the contour
+#     self.avgerage_position =  np.empty() # avg position of the contour
+# - 2 
+
+# The Big Plan
+# 1- find contours
+# 2- create Contour object Contour = Contour()
+# 3- foreach contour in contours
+#     1 - create current contour object 
+#     2 - current_contour = ContourData()
+
+#     3 - process all contour data into current_contour object
+#         1 - findall pixels in current contour
+#         2 - find all colours of pixels in currnt contour
+#         3 - find size of contour
+#         4 - find average colour of pixels (rgb)
+#         5 - find average colour of pixels (name)
+#         6 - find average position of contour in item image
+    
+#     4 - append ContourData object into Contour object
+    
+# 4- dump Contour Object as json to be processed further elsewhere.
